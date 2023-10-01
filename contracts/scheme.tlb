@@ -1,6 +1,6 @@
-7days$0 = StakingOption;
-14days$10 = StakingOption;
-30days$11 = StakingOption;
+7days$00 = StakingOption;
+14days$01 = StakingOption;
+30days$10 = StakingOption;
 
 _ items:(HashmapE 267 uint2) jetton_master:MsgAddressInt jetton_wallet_code:^Cell helper_code:^Cell = StakingMasterStorage;
 _ master:MsgAddressInt item:MsgAddressInt staker:MsgAddressInt staked_at:uint64 option:StakingOption = StakingHelperStorage;

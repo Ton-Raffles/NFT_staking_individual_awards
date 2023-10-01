@@ -1,18 +1,32 @@
 #include "imports/stdlib.fc";
 #include "constants.fc";
 
+global slice data::master;
+global slice data::item;
+global slice data::staker;
+global int data::staked_at;
+global int data::option;
+
 global int context::op;
 global int context::query_id;
 global slice context::sender;
 
 () load_data() impure {
     slice ds = get_data().begin_parse();
-    
+    data::master = ds~load_msg_addr();
+    data::item = ds~load_msg_addr();
+    data::staker = ds~load_msg_addr();
+    data::staked_at = ds~load_uint(64);
+    data::option = ds~load_uint(2);
 }
 
 () save_data() impure {
     set_data(begin_cell()
-        
+        .store_slice(data::master)
+        .store_slice(data::item)
+        .store_slice(data::staker)
+        .store_uint(data::staked_at, 64)
+        .store_uint(data::option, 2)
     .end_cell());
 }
 
@@ -32,7 +46,7 @@ global slice context::sender;
     }
 
     elseif (context::op == op::process_stake) {
-        
+
     }
 
     else {
