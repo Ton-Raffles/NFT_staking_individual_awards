@@ -1,0 +1,12 @@
+7days$0 = StakingOption;
+14days$10 = StakingOption;
+30days$11 = StakingOption;
+
+_ items:(HashmapE 267 uint2) jetton_master:MsgAddressInt jetton_wallet_code:^Cell helper_code:^Cell = StakingMasterStorage;
+_ master:MsgAddressInt item:MsgAddressInt staker:MsgAddressInt staked_at:uint64 option:StakingOption = StakingHelperStorage;
+
+stake#429c67c7 option:StakingOption = ForwardPayload;
+process_stake#612d5aaa staker:MsgAddressInt option:StakingOption = InternalMsgBody;
+
+claim#7f69c418 = InternalMsgBody;
+request_claim#4222a922 staker:MsgAddressInt = InternalMsgBody;
