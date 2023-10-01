@@ -4,13 +4,11 @@ const int op::jetton::transfer = 0x0f8a7ea5;
 const int op::stake = 0x429c67c7;
 const int op::process_stake = 0x612d5aaa;
 const int op::claim = 0x7f69c418;
-const int op::request_claim = 0x6f062668;
+const int op::request_claim = 0x0abbe770;
 
 const int error::wrong_sender = 700;
 const int error::not_staked = 701;
 const int error::already_staked = 702;
 const int error::too_early = 703;
 
-const int const::7days = 7 * 24 * 60 * 60;
-const int const::14days = 14 * 24 * 60 * 60;
-const int const::30days = 30 * 24 * 60 * 60;
+const int const::day = 86400;
