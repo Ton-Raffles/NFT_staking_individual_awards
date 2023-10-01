@@ -30,6 +30,25 @@ global slice context::sender;
 
 (slice, int) dict_get?(cell dict, int key_len, slice index) asm(index dict key_len) "DICTGET" "NULLSWAPIFNOT";
 
+(cell, slice) get_stateinit_and_address_of_helper(slice item) inline {
+    cell stateinit = begin_cell()
+        .store_uint(0, 2)
+        .store_dict(data::helper_code)
+        .store_dict(begin_cell()
+            .store_slice(my_address())
+            .store_slice(item)
+            .store_uint(0, 74)
+        .end_cell())
+        .store_uint(0, 1)
+    .end_cell();
+    slice address = begin_cell()
+        .store_uint(4, 3)
+        .store_int(0, 8)
+        .store_uint(cell_hash(stateinit), 256)
+    .end_cell().begin_parse();
+    return (stateinit, address);
+}
+
 () recv_internal(int my_balance, int msg_value, cell in_msg_full, slice in_msg_body) impure {
     if (in_msg_body.slice_bits() < 96) {
         return ();
@@ -58,22 +77,7 @@ global slice context::sender;
         }
         
         if (stake?) {
-            cell stateinit = begin_cell()
-                .store_uint(0, 2)
-                .store_dict(data::helper_code)
-                .store_dict(begin_cell()
-                    .store_slice(my_address())
-                    .store_slice(context::sender)
-                    .store_uint(0, 74)
-                .end_cell())
-                .store_uint(0, 1)
-            .end_cell();
-            slice address = begin_cell()
-                .store_uint(4, 3)
-                .store_int(0, 8)
-                .store_uint(cell_hash(stateinit), 256)
-            .end_cell().begin_parse();
-
+            (cell stateinit, slice address) = get_stateinit_and_address_of_helper(context::sender);
             send_raw_message(begin_cell()
                 .store_uint(0x18, 6)
                 .store_slice(address)
@@ -104,21 +108,7 @@ global slice context::sender;
         slice staker = in_msg_body~load_msg_addr();
         int option = in_msg_body~load_uint(8);
 
-        cell stateinit = begin_cell()
-            .store_uint(0, 2)
-            .store_ref(data::helper_code)
-            .store_ref(begin_cell()
-                .store_slice(my_address())
-                .store_slice(item)
-                .store_uint(0, 74)
-            .end_cell())
-            .store_uint(0, 1)
-        .end_cell();
-        slice address = begin_cell()
-            .store_uint(4, 3)
-            .store_int(0, 8)
-            .store_uint(cell_hash(stateinit), 256)
-        .end_cell().begin_parse();
+        (_, slice address) = get_stateinit_and_address_of_helper(item);
 
         throw_unless(error::wrong_sender, equal_slices(context::sender, address));
 
@@ -150,20 +140,6 @@ global slice context::sender;
 
 slice get_helper_address(slice item) method_id {
     load_data();
-    cell stateinit = begin_cell()
-        .store_uint(0, 2)
-        .store_dict(data::helper_code)
-        .store_dict(begin_cell()
-            .store_slice(my_address())
-            .store_slice(item)
-            .store_uint(0, 74)
-        .end_cell())
-        .store_uint(0, 1)
-    .end_cell();
-    slice address = begin_cell()
-        .store_uint(4, 3)
-        .store_int(0, 8)
-        .store_uint(cell_hash(stateinit), 256)
-    .end_cell().begin_parse();
+    (_, slice address) = get_stateinit_and_address_of_helper(item);
     return address;
 }
