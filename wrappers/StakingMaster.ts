@@ -50,7 +50,9 @@ export class StakingMaster implements Contract {
 
     async getHelper(provider: ContractProvider, item: Address): Promise<StakingHelper> {
         const stack = (
-            await provider.get('get_helper', [{ type: 'slice', cell: beginCell().storeAddress(item).endCell() }])
+            await provider.get('get_helper_address', [
+                { type: 'slice', cell: beginCell().storeAddress(item).endCell() },
+            ])
         ).stack;
         return StakingHelper.createFromAddress(stack.readAddress());
     }

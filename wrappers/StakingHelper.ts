@@ -6,7 +6,7 @@ export type StakingHelperConfig = {
 };
 
 export function stakingHelperConfigToCell(config: StakingHelperConfig): Cell {
-    return beginCell().storeAddress(config.master).storeAddress(config.item).storeUint(0, 68).endCell();
+    return beginCell().storeAddress(config.master).storeAddress(config.item).storeUint(0, 74).endCell();
 }
 
 export class StakingHelper implements Contract {

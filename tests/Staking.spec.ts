@@ -1,5 +1,5 @@
 import { Blockchain, SandboxContract, TreasuryContract } from '@ton/sandbox';
-import { Cell, Dictionary, toNano } from '@ton/core';
+import { Cell, Dictionary, beginCell, toNano } from '@ton/core';
 import { StakingMaster } from '../wrappers/StakingMaster';
 import '@ton/test-utils';
 import { compile } from '@ton/blueprint';
@@ -97,5 +97,30 @@ describe('Staking', () => {
     it('should deploy', async () => {
         // the check is done inside beforeEach
         // blockchain and stakingMaster are ready to use
+    });
+
+    it('should stake item', async () => {
+        const item = blockchain.openContract(await collection.getNftItemByIndex(0n));
+
+        const result = await item.sendTransfer(
+            users[0].getSender(),
+            toNano('0.2'),
+            stakingMaster.address,
+            beginCell().storeUint(0x429c67c7, 32).storeUint(7, 8).endCell()
+        );
+
+        expect(result.transactions).toHaveTransaction({
+            on: stakingMaster.address,
+            success: true,
+        });
+        const helper = blockchain.openContract(await stakingMaster.getHelper(item.address));
+        expect(result.transactions).toHaveTransaction({
+            from: stakingMaster.address,
+            to: helper.address,
+            success: true,
+            deploy: true,
+        });
+        expect(await helper.getStakedAt()).toEqual(1600000000n);
+        expect(await helper.getOption()).toEqual(7);
     });
 });

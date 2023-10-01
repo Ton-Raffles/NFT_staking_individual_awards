@@ -64,7 +64,7 @@ global slice context::sender;
                 .store_dict(begin_cell()
                     .store_slice(my_address())
                     .store_slice(context::sender)
-                    .store_uint(0, 68)
+                    .store_uint(0, 74)
                 .end_cell())
                 .store_uint(0, 1)
             .end_cell();
@@ -110,7 +110,7 @@ global slice context::sender;
             .store_ref(begin_cell()
                 .store_slice(my_address())
                 .store_slice(item)
-                .store_uint(0, 68)
+                .store_uint(0, 74)
             .end_cell())
             .store_uint(0, 1)
         .end_cell();
@@ -152,11 +152,11 @@ slice get_helper_address(slice item) method_id {
     load_data();
     cell stateinit = begin_cell()
         .store_uint(0, 2)
-        .store_ref(data::helper_code)
-        .store_ref(begin_cell()
+        .store_dict(data::helper_code)
+        .store_dict(begin_cell()
             .store_slice(my_address())
             .store_slice(item)
-            .store_uint(0, 68)
+            .store_uint(0, 74)
         .end_cell())
         .store_uint(0, 1)
     .end_cell();
