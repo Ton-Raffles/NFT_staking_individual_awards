@@ -132,7 +132,7 @@ describe('Staking', () => {
                 deploy: true,
             });
             expect(await helper.getStaker()).toEqualAddress(users[0].address);
-            expect(await helper.getStakedAt()).toEqual(1600000000n);
+            expect(await helper.getStakedAt()).toEqual(1600000000);
             expect(await helper.getOption()).toEqual(7);
         }
 
@@ -159,7 +159,7 @@ describe('Staking', () => {
                 deploy: true,
             });
             expect(await helper.getStaker()).toEqualAddress(users[1].address);
-            expect(await helper.getStakedAt()).toEqual(1600000000n);
+            expect(await helper.getStakedAt()).toEqual(1600000000);
             expect(await helper.getOption()).toEqual(30);
         }
     });
@@ -215,29 +215,64 @@ describe('Staking', () => {
     });
 
     it('should claim rewards', async () => {
-        const item = blockchain.openContract(await collection.getNftItemByIndex(0n));
-        await item.sendTransfer(
-            users[0].getSender(),
-            toNano('0.2'),
-            stakingMaster.address,
-            beginCell().storeUint(0x429c67c7, 32).storeUint(7, 8).endCell()
-        );
-        const helper = blockchain.openContract(await stakingMaster.getHelper(item.address));
-        expect(await helper.getStakedAt()).toEqual(1600000000n);
-        expect(await helper.getOption()).toEqual(7);
+        {
+            const item = blockchain.openContract(await collection.getNftItemByIndex(0n));
+            await item.sendTransfer(
+                users[0].getSender(),
+                toNano('0.2'),
+                stakingMaster.address,
+                beginCell().storeUint(0x429c67c7, 32).storeUint(7, 8).endCell()
+            );
+            const helper = blockchain.openContract(await stakingMaster.getHelper(item.address));
+            expect(await helper.getStakedAt()).toEqual(1600000000);
+            expect(await helper.getOption()).toEqual(7);
 
-        blockchain.now = 1600000000 + 86400 * 7 + 1;
+            blockchain.now = 1600000000 + 86400 * 7 + 1;
 
-        const result = await helper.sendClaim(users[0].getSender(), toNano('0.2'), 123n);
-        expect(result.transactions).toHaveTransaction({
-            on: stakingMaster.address,
-            success: true,
-        });
-        expect(await item.getOwner()).toEqualAddress(users[0].address);
-        expect(
-            await blockchain
-                .openContract(JettonWallet.createFromAddress(await jettonMinter.getWalletAddressOf(users[0].address)))
-                .getJettonBalance()
-        ).toEqual(toNano('7'));
+            const result = await helper.sendClaim(users[0].getSender(), toNano('0.2'), 123n);
+            expect(result.transactions).toHaveTransaction({
+                on: stakingMaster.address,
+                success: true,
+            });
+            expect(await item.getOwner()).toEqualAddress(users[0].address);
+            expect(
+                await blockchain
+                    .openContract(
+                        JettonWallet.createFromAddress(await jettonMinter.getWalletAddressOf(users[0].address))
+                    )
+                    .getJettonBalance()
+            ).toEqual(toNano('7'));
+        }
+
+        {
+            const item = blockchain.openContract(await collection.getNftItemByIndex(0n));
+            const result1 = await item.sendTransfer(
+                users[0].getSender(),
+                toNano('0.2'),
+                stakingMaster.address,
+                beginCell().storeUint(0x429c67c7, 32).storeUint(14, 8).endCell()
+            );
+            const helper = blockchain.openContract(await stakingMaster.getHelper(item.address));
+            expect(await helper.getStakedAt()).toEqual(1600000000 + 86400 * 7 + 1);
+            expect(await helper.getOption()).toEqual(14);
+
+            blockchain.now = 1600000000 + 86400 * (7 + 14) + 1;
+
+            const result = await helper.sendClaim(users[0].getSender(), toNano('0.2'), 123n);
+            expect(result.transactions).toHaveTransaction({
+                on: stakingMaster.address,
+                success: true,
+            });
+            expect(await item.getOwner()).toEqualAddress(users[0].address);
+            expect(
+                await blockchain
+                    .openContract(
+                        JettonWallet.createFromAddress(await jettonMinter.getWalletAddressOf(users[0].address))
+                    )
+                    .getJettonBalance()
+            ).toEqual(toNano('21'));
+
+            expect(await helper.getStakedAt()).toEqual(0);
+        }
     });
 });

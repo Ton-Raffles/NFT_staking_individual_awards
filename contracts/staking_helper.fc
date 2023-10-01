@@ -30,6 +30,8 @@ global slice context::sender;
     .end_cell());
 }
 
+(slice) empty_address() asm "b{00} PUSHSLICE";
+
 () recv_internal(int my_balance, int msg_value, cell in_msg_full, slice in_msg_body) impure {
     if (in_msg_body.slice_bits() < 96) {
         return ();
@@ -61,18 +63,17 @@ global slice context::sender;
             .store_uint(data::option, 8)
         .end_cell(), 64);
 
-        data::staker = "";
-        data::option = 0;
+        data::staker = empty_address();
         data::staked_at = 0;
+        data::option = 0;
     }
 
     elseif (context::op == op::process_stake) {
         throw_unless(error::already_staked, data::staked_at == 0);
         throw_unless(error::wrong_sender, equal_slices(context::sender, data::master));
-
         data::staker = in_msg_body~load_msg_addr();
-        data::option = in_msg_body~load_uint(8);
         data::staked_at = now();
+        data::option = in_msg_body~load_uint(8);
     }
 
     else {

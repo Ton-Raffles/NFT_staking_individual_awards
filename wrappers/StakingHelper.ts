@@ -47,7 +47,7 @@ export class StakingHelper implements Contract {
     async getStakedAt(provider: ContractProvider) {
         let stack = (await provider.get('get_contract_data', [])).stack;
         stack.skip(3);
-        return stack.readBigNumber();
+        return stack.readNumber();
     }
 
     async getOption(provider: ContractProvider) {
