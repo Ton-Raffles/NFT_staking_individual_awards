@@ -39,7 +39,60 @@ global slice context::sender;
     load_data();
 
     if (context::op == op::ownership_assigned) {
+        slice prev_owner = in_msg_body~load_msg_addr();
+        slice forward_payload = in_msg_body;
+        if (forward_payload~load_int(1)) {
+            forward_payload = forward_payload~load_ref().begin_parse();
+        }
 
+        int op = forward_payload~load_uint(32);
+        if (op == op::stake) {
+            ;; deploy staking helper
+
+            int option = forward_payload~load_uint(2);
+
+            cell stateinit = begin_cell()
+                .store_uint(0, 2)
+                .store_ref(data::helper_code)
+                .store_ref(begin_cell()
+                    .store_slice(my_address())
+                    .store_slice(context::sender)
+                    .store_slice(prev_owner)
+                    .store_uint(0, 66)
+                .end_cell())
+                .store_uint(0, 1)
+            .end_cell();
+            slice address = begin_cell()
+                .store_uint(4, 3)
+                .store_int(0, 8)
+                .store_uint(cell_hash(stateinit), 256)
+            .end_cell().begin_parse();
+
+            send_raw_message(begin_cell()
+                .store_uint(0x18, 6)
+                .store_slice(address)
+                .store_coins(0)
+                .store_uint(6, 108)
+                .store_ref(stateinit)
+                .store_uint(op::process_stake, 32)
+                .store_uint(context::query_id, 64)
+                .store_slice(prev_owner)
+                .store_uint(option, 2)
+            .end_cell(), 64);
+        } else {
+            ;; send back to previous owner
+
+            send_raw_message(begin_cell()
+                .store_uint(0x18, 6)
+                .store_slice(context::sender)
+                .store_coins(0)
+                .store_uint(0, 107)
+                .store_uint(op::transfer, 32)
+                .store_uint(context::query_id, 64)
+                .store_slice(prev_owner)
+                .store_uint(0, 8)
+            .end_cell(), 64);
+        }
     }
 
     elseif (context::op == op::request_claim) {
