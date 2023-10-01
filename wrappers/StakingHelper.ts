@@ -29,4 +29,12 @@ export class StakingHelper implements Contract {
             body: beginCell().endCell(),
         });
     }
+
+    async sendClaim(provider: ContractProvider, via: Sender, value: bigint, queryId: bigint) {
+        await provider.internal(via, {
+            value,
+            sendMode: SendMode.PAY_GAS_SEPARATELY,
+            body: beginCell().storeUint(0x4d0c099d, 32).storeUint(queryId, 64).endCell(),
+        });
+    }
 }

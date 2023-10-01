@@ -2,9 +2,9 @@ const int op::nft::transfer = 0x5fcc3d14;
 const int op::nft::ownership_assigned = 0x05138d91;
 const int op::jetton::transfer = 0x0f8a7ea5;
 const int op::stake = 0x429c67c7;
-const int op::process_stake = 0x612d5aaa;
-const int op::claim = 0x7f69c418;
-const int op::request_claim = 0x0abbe770;
+const int op::process_stake = 0x654c3af3;
+const int op::claim = 0x4d0c099d;
+const int op::request_claim = 0xa405117;
 
 const int error::wrong_sender = 700;
 const int error::not_staked = 701;

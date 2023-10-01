@@ -2,7 +2,7 @@ _ items:(HashmapE 267 Coins) jetton_master:MsgAddressInt jetton_wallet_code:^Cel
 _ master:MsgAddressInt item:MsgAddressInt staker:MsgAddressInt staked_at:uint64 option:uint8 = StakingHelperStorage;
 
 stake#429c67c7 option:uint8 = ForwardPayload;
-process_stake#612d5aaa staker:MsgAddressInt option:uint8 = InternalMsgBody;
+process_stake#654c3af3 query_id:uint64 staker:MsgAddressInt option:uint8 = InternalMsgBody;
 
-claim#7f69c418 = InternalMsgBody;
-request_claim#abbe770 item:MsgAddressInt staker:MsgAddressInt option:uint8 = InternalMsgBody;
+claim#4d0c099d query_id:uint64 = InternalMsgBody;
+request_claim#a405117 query_id:uint64 item:MsgAddressInt staker:MsgAddressInt option:uint8 = InternalMsgBody;
