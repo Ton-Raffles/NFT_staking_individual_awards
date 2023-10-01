@@ -5,6 +5,7 @@ global slice data::master;
 global slice data::item;
 global slice data::staker;
 global int data::staked_at;
+global int data::claimed_at;
 global int data::option;
 
 global int context::op;
@@ -17,6 +18,7 @@ global slice context::sender;
     data::item = ds~load_msg_addr();
     data::staker = ds~load_msg_addr();
     data::staked_at = ds~load_uint(64);
+    data::claimed_at = ds~load_uint(64);
     data::option = ds~load_uint(8);
 }
 
@@ -26,6 +28,7 @@ global slice context::sender;
         .store_slice(data::item)
         .store_slice(data::staker)
         .store_uint(data::staked_at, 64)
+        .store_uint(data::claimed_at, 64)
         .store_uint(data::option, 8)
     .end_cell());
 }
@@ -50,27 +53,35 @@ global slice context::sender;
         int time_passed = now() - data::staked_at;
         throw_unless(error::too_early, time_passed >= (data::option * const::day));
 
+        time_passed = now() - data::claimed_at;
+
         int return_item = in_msg_body~load_int(1);
 
         send_raw_message(begin_cell()
             .store_uint(0x18, 6)
             .store_slice(data::master)
             .store_coins(0)
-            .store_uint(0, 107)
-            .store_uint(op::request_claim, 32)
-            .store_uint(context::query_id, 64)
-            .store_int(return_item, 1)
-            .store_slice(data::item)
-            .store_slice(data::staker)
-            .store_uint(data::option, 8)
+            .store_uint(1, 107)
+            .store_ref(begin_cell()
+                .store_uint(op::request_claim, 32)
+                .store_uint(context::query_id, 64)
+                .store_int(return_item, 1)
+                .store_slice(data::item)
+                .store_slice(data::staker)
+                .store_uint(data::option, 8)
+                .store_uint(time_passed, 64)
+            .end_cell())
         .end_cell(), 64);
 
         if (return_item) {
             data::staker = empty_address();
             data::staked_at = 0;
             data::option = 0;
+        } elseif (data::option == 30) {
+            data::claimed_at = now();
         } else {
             data::staked_at = now();
+            data::claimed_at = now();
         }
     }
 
@@ -79,6 +90,7 @@ global slice context::sender;
         throw_unless(error::wrong_sender, equal_slices(context::sender, data::master));
         data::staker = in_msg_body~load_msg_addr();
         data::staked_at = now();
+        data::claimed_at = now();
         data::option = in_msg_body~load_uint(8);
     }
 

@@ -37,7 +37,7 @@ global slice context::sender;
         .store_dict(begin_cell()
             .store_slice(my_address())
             .store_slice(item)
-            .store_uint(0, 74)
+            .store_uint(0, 138)
         .end_cell())
         .store_uint(0, 1)
     .end_cell();
@@ -108,6 +108,7 @@ global slice context::sender;
         slice item = in_msg_body~load_msg_addr();
         slice staker = in_msg_body~load_msg_addr();
         int option = in_msg_body~load_uint(8);
+        int time_passed = in_msg_body~load_uint(64);
 
         (_, slice address) = get_stateinit_and_address_of_helper(item);
 
@@ -117,7 +118,7 @@ global slice context::sender;
 
         (slice value, int f?) = data::items.dict_get?(267, item);
         int daily_reward = value~load_coins();
-        int amount = daily_reward * option;
+        int amount = daily_reward * (time_passed / const::day);
 
         send_raw_message(begin_cell()
             .store_uint(0x18, 6)
