@@ -48,15 +48,20 @@ global slice context::sender;
             forward_payload = forward_payload~load_ref().begin_parse();
         }
 
-        int op = forward_payload~load_uint(32);
-        (_, int f?) = data::items.dict_get?(267, context::sender);
-        if ((op == op::stake) & f?) {
-            int option = forward_payload~load_uint(8);
-
+        int stake? = 0;
+        int option = 0;
+        if (forward_payload.slice_bits() == 40) {
+            int op = forward_payload~load_uint(32);
+            (_, int f?) = data::items.dict_get?(267, context::sender);
+            option = forward_payload~load_uint(8);
+            stake? = (op == op::stake) & f? & ((option == 7) | (option == 14) | (option == 30));
+        }
+        
+        if (stake?) {
             cell stateinit = begin_cell()
                 .store_uint(0, 2)
-                .store_ref(data::helper_code)
-                .store_ref(begin_cell()
+                .store_dict(data::helper_code)
+                .store_dict(begin_cell()
                     .store_slice(my_address())
                     .store_slice(context::sender)
                     .store_uint(0, 68)

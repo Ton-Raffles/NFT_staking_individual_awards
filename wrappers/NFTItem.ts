@@ -15,7 +15,13 @@ export class NFTItem implements Contract {
         });
     }
 
-    async sendTransfer(provider: ContractProvider, via: Sender, value: bigint, recipient: Address) {
+    async sendTransfer(
+        provider: ContractProvider,
+        via: Sender,
+        value: bigint,
+        recipient: Address,
+        forwardPayload?: Cell
+    ) {
         await provider.internal(via, {
             value,
             sendMode: SendMode.PAY_GAS_SEPARATELY,
@@ -26,7 +32,7 @@ export class NFTItem implements Contract {
                 .storeAddress(await this.getOwner(provider))
                 .storeUint(0, 1)
                 .storeCoins(toNano('0.1'))
-                .storeUint(0, 1)
+                .storeMaybeRef(forwardPayload)
                 .endCell(),
         });
     }
