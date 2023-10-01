@@ -38,6 +38,12 @@ export class StakingHelper implements Contract {
         });
     }
 
+    async getStaker(provider: ContractProvider) {
+        let stack = (await provider.get('get_contract_data', [])).stack;
+        stack.skip(2);
+        return stack.readAddress();
+    }
+
     async getStakedAt(provider: ContractProvider) {
         let stack = (await provider.get('get_contract_data', [])).stack;
         stack.skip(3);
