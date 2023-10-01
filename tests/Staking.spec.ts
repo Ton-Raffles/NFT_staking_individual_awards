@@ -3,7 +3,6 @@ import { Cell, Dictionary, beginCell, toNano } from '@ton/core';
 import { StakingMaster } from '../wrappers/StakingMaster';
 import '@ton/test-utils';
 import { compile } from '@ton/blueprint';
-import { randomAddress } from '@ton/test-utils';
 import { JettonMinter } from '../wrappers/JettonMinter';
 import { NFTCollection } from '../wrappers/NFTCollection';
 import { JettonWallet } from '../wrappers/JettonWallet';
@@ -246,7 +245,7 @@ describe('Staking', () => {
 
         {
             const item = blockchain.openContract(await collection.getNftItemByIndex(0n));
-            const result1 = await item.sendTransfer(
+            await item.sendTransfer(
                 users[0].getSender(),
                 toNano('0.2'),
                 stakingMaster.address,
@@ -273,6 +272,86 @@ describe('Staking', () => {
             ).toEqual(toNano('21'));
 
             expect(await helper.getStakedAt()).toEqual(0);
+        }
+    });
+
+    it('should not claim until time passes', async () => {
+        const item = blockchain.openContract(await collection.getNftItemByIndex(0n));
+        await item.sendTransfer(
+            users[0].getSender(),
+            toNano('0.2'),
+            stakingMaster.address,
+            beginCell().storeUint(0x429c67c7, 32).storeUint(7, 8).endCell()
+        );
+        const helper = blockchain.openContract(await stakingMaster.getHelper(item.address));
+        expect(await helper.getStakedAt()).toEqual(1600000000);
+        expect(await helper.getOption()).toEqual(7);
+
+        blockchain.now = 1600000000 + 86400 * 7 - 1;
+
+        {
+            const result = await helper.sendClaim(users[0].getSender(), toNano('0.2'), 123n);
+            expect(result.transactions).toHaveTransaction({
+                on: helper.address,
+                exitCode: 703,
+            });
+        }
+
+        blockchain.now = 1600000000 + 86400 * 7 + 1;
+
+        {
+            const result = await helper.sendClaim(users[0].getSender(), toNano('0.2'), 123n);
+            expect(result.transactions).toHaveTransaction({
+                on: stakingMaster.address,
+                success: true,
+            });
+            expect(await item.getOwner()).toEqualAddress(users[0].address);
+            expect(
+                await blockchain
+                    .openContract(
+                        JettonWallet.createFromAddress(await jettonMinter.getWalletAddressOf(users[0].address))
+                    )
+                    .getJettonBalance()
+            ).toEqual(toNano('7'));
+        }
+    });
+
+    it('should not claim twice', async () => {
+        const item = blockchain.openContract(await collection.getNftItemByIndex(0n));
+        await item.sendTransfer(
+            users[0].getSender(),
+            toNano('0.2'),
+            stakingMaster.address,
+            beginCell().storeUint(0x429c67c7, 32).storeUint(7, 8).endCell()
+        );
+        const helper = blockchain.openContract(await stakingMaster.getHelper(item.address));
+        expect(await helper.getStakedAt()).toEqual(1600000000);
+        expect(await helper.getOption()).toEqual(7);
+
+        blockchain.now = 1600000000 + 86400 * 7 + 1;
+
+        {
+            const result = await helper.sendClaim(users[0].getSender(), toNano('0.2'), 123n);
+            expect(result.transactions).toHaveTransaction({
+                on: stakingMaster.address,
+                success: true,
+            });
+            expect(await item.getOwner()).toEqualAddress(users[0].address);
+            expect(
+                await blockchain
+                    .openContract(
+                        JettonWallet.createFromAddress(await jettonMinter.getWalletAddressOf(users[0].address))
+                    )
+                    .getJettonBalance()
+            ).toEqual(toNano('7'));
+        }
+
+        {
+            const result = await helper.sendClaim(users[0].getSender(), toNano('0.2'), 123n);
+            expect(result.transactions).toHaveTransaction({
+                on: helper.address,
+                success: false,
+            });
         }
     });
 });
