@@ -1,4 +1,5 @@
 #include "imports/stdlib.fc";
+#include "jetton/jetton-utils.fc";
 #include "constants.fc";
 
 global cell data::items;
@@ -26,6 +27,8 @@ global slice context::sender;
         .store_ref(data::helper_code)
     .end_cell());
 }
+
+(slice, int) dict_get?(cell dict, int key_len, slice index) asm(index dict key_len) "DICTGET" "NULLSWAPIFNOT";
 
 () recv_internal(int my_balance, int msg_value, cell in_msg_full, slice in_msg_body) impure {
     if (in_msg_body.slice_bits() < 96) {
@@ -92,7 +95,7 @@ global slice context::sender;
     }
 
     elseif (context::op == op::request_claim) {
-        item = in_msg_body~load_msg_addr();
+        slice item = in_msg_body~load_msg_addr();
         slice staker = in_msg_body~load_msg_addr();
         int option = in_msg_body~load_uint(8);
 
