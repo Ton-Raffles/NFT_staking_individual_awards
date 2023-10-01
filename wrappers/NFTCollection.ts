@@ -57,8 +57,7 @@ export class NFTCollection implements Contract {
         });
     }
 
-    async sendMint(provider: ContractProvider, via: Sender, value: bigint): Promise<NFTItem> {
-        const itemIndex = await this.getNextItemIndex(provider);
+    async sendMint(provider: ContractProvider, via: Sender, value: bigint, itemIndex: number): Promise<NFTItem> {
         await provider.internal(via, {
             value,
             sendMode: SendMode.PAY_GAS_SEPARATELY,
@@ -70,7 +69,7 @@ export class NFTCollection implements Contract {
                 .storeRef(beginCell().storeAddress(via.address!).storeRef(Cell.EMPTY).endCell())
                 .endCell(),
         });
-        return this.getNftItemByIndex(provider, itemIndex);
+        return this.getNftItemByIndex(provider, BigInt(itemIndex));
     }
 
     async sendChangeOwner(provider: ContractProvider, via: Sender, value: bigint, newOwner: Address) {

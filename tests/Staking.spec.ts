@@ -67,8 +67,8 @@ describe('Staking', () => {
 
         // deploy some items and add them to dictionary
         let items = Dictionary.empty(Dictionary.Keys.Address(), Dictionary.Values.BigVarUint(4));
-        for (let i = 0; i < 4; i++) {
-            const item = (await collection.sendMint(users[0].getSender(), toNano('0.05'))).result;
+        for (let i = 0; i < 2; i++) {
+            const item = (await collection.sendMint(users[0].getSender(), toNano('0.05'), i)).result;
             items = items.set(item.address, toNano('1') * BigInt(i + 1));
         }
 
@@ -152,5 +152,55 @@ describe('Staking', () => {
             expect(await helper.getStakedAt()).toEqual(1600000000n);
             expect(await helper.getOption()).toEqual(30);
         }
+    });
+
+    it('should not stake items not from dict', async () => {
+        const item = blockchain.openContract(
+            (await collection.sendMint(users[0].getSender(), toNano('0.05'), 2)).result
+        );
+
+        const result = await item.sendTransfer(
+            users[0].getSender(),
+            toNano('0.2'),
+            stakingMaster.address,
+            beginCell().storeUint(0x429c67c7, 32).storeUint(7, 8).endCell()
+        );
+
+        expect(result.transactions).toHaveTransaction({
+            on: stakingMaster.address,
+            success: true,
+        });
+        const helper = blockchain.openContract(await stakingMaster.getHelper(item.address));
+        expect(result.transactions).not.toHaveTransaction({
+            from: stakingMaster.address,
+            to: helper.address,
+            success: true,
+            deploy: true,
+        });
+        expect(await item.getOwner()).toEqualAddress(users[0].address);
+    });
+
+    it('should not stake with wrong option', async () => {
+        const item = blockchain.openContract(await collection.getNftItemByIndex(0n));
+
+        const result = await item.sendTransfer(
+            users[0].getSender(),
+            toNano('0.2'),
+            stakingMaster.address,
+            beginCell().storeUint(0x429c67c7, 32).storeUint(123, 8).endCell()
+        );
+
+        expect(result.transactions).toHaveTransaction({
+            on: stakingMaster.address,
+            success: true,
+        });
+        const helper = blockchain.openContract(await stakingMaster.getHelper(item.address));
+        expect(result.transactions).not.toHaveTransaction({
+            from: stakingMaster.address,
+            to: helper.address,
+            success: true,
+            deploy: true,
+        });
+        expect(await item.getOwner()).toEqualAddress(users[0].address);
     });
 });
