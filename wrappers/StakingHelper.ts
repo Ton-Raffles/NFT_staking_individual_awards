@@ -30,11 +30,11 @@ export class StakingHelper implements Contract {
         });
     }
 
-    async sendClaim(provider: ContractProvider, via: Sender, value: bigint, queryId: bigint) {
+    async sendClaim(provider: ContractProvider, via: Sender, value: bigint, queryId: bigint, returnItem: boolean) {
         await provider.internal(via, {
             value,
             sendMode: SendMode.PAY_GAS_SEPARATELY,
-            body: beginCell().storeUint(0x4d0c099d, 32).storeUint(queryId, 64).endCell(),
+            body: beginCell().storeUint(0x75938797, 32).storeUint(queryId, 64).storeBit(returnItem).endCell(),
         });
     }
 

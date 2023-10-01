@@ -4,5 +4,5 @@ _ master:MsgAddressInt item:MsgAddressInt staker:MsgAddressInt staked_at:uint64 
 stake#429c67c7 option:uint8 = ForwardPayload;
 process_stake#654c3af3 query_id:uint64 staker:MsgAddressInt option:uint8 = InternalMsgBody;
 
-claim#4d0c099d query_id:uint64 = InternalMsgBody;
-request_claim#a405117 query_id:uint64 item:MsgAddressInt staker:MsgAddressInt option:uint8 = InternalMsgBody;
+claim#75938797 query_id:uint64 return_item:Bool = InternalMsgBody;
+request_claim#10632faa query_id:uint64 return_item:Bool item:MsgAddressInt staker:MsgAddressInt option:uint8 = InternalMsgBody;

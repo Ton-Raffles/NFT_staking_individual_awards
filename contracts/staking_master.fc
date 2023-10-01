@@ -104,6 +104,7 @@ global slice context::sender;
     }
 
     elseif (context::op == op::request_claim) {
+        int return_item = in_msg_body~load_int(1);
         slice item = in_msg_body~load_msg_addr();
         slice staker = in_msg_body~load_msg_addr();
         int option = in_msg_body~load_uint(8);
@@ -130,16 +131,18 @@ global slice context::sender;
             .store_uint(0, 8)
         .end_cell(), 1);
 
-        send_raw_message(begin_cell()
-            .store_uint(0x18, 6)
-            .store_slice(item)
-            .store_coins(const::transfer_fees)
-            .store_uint(0, 107)
-            .store_uint(op::nft::transfer, 32)
-            .store_uint(context::query_id, 64)
-            .store_slice(staker)
-            .store_uint(0, 8)
-        .end_cell(), 1);
+        if (return_item) {
+            send_raw_message(begin_cell()
+                .store_uint(0x18, 6)
+                .store_slice(item)
+                .store_coins(const::transfer_fees)
+                .store_uint(0, 107)
+                .store_uint(op::nft::transfer, 32)
+                .store_uint(context::query_id, 64)
+                .store_slice(staker)
+                .store_uint(0, 8)
+            .end_cell(), 1);
+        }
     }
 
     else {

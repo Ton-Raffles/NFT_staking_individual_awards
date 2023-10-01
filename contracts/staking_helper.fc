@@ -45,11 +45,12 @@ global slice context::sender;
 
     if (context::op == op::claim) {
         throw_unless(error::not_enough_value, msg_value >= const::transfer_fees * 3);
-
         throw_if(error::not_staked, data::staked_at == 0);
         throw_unless(error::wrong_sender, equal_slices(context::sender, data::staker));
         int time_passed = now() - data::staked_at;
         throw_unless(error::too_early, time_passed >= (data::option * const::day));
+
+        int return_item = in_msg_body~load_int(1);
 
         send_raw_message(begin_cell()
             .store_uint(0x18, 6)
@@ -58,14 +59,19 @@ global slice context::sender;
             .store_uint(0, 107)
             .store_uint(op::request_claim, 32)
             .store_uint(context::query_id, 64)
+            .store_int(return_item, 1)
             .store_slice(data::item)
             .store_slice(data::staker)
             .store_uint(data::option, 8)
         .end_cell(), 64);
 
-        data::staker = empty_address();
-        data::staked_at = 0;
-        data::option = 0;
+        if (return_item) {
+            data::staker = empty_address();
+            data::staked_at = 0;
+            data::option = 0;
+        } else {
+            data::staked_at = now();
+        }
     }
 
     elseif (context::op == op::process_stake) {
