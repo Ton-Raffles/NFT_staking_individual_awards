@@ -42,11 +42,32 @@ global slice context::sender;
     load_data();
 
     if (context::op == op::claim) {
+        throw_if(error::not_staked, data::staked_at == 0);
+        throw_unless(error::wrong_sender, equal_slices(context::sender, data::staker));
+        int time_passed = now() - data::staked_at;
+        throw_unless(error::too_early, ((data::option == 0) & (time_passed >= const::7days)) |
+                                       ((data::option == 1) & (time_passed >= const::14days)) |
+                                       ((data::option == 2) & (time_passed >= const::30days)));
 
+        send_raw_message(begin_cell()
+            .store_uint(0x18, 6)
+            .store_slice(data::master)
+            .store_coins(0)
+            .store_uint(0, 107)
+            .store_uint(op::request_claim, 32)
+            .store_uint(context::query_id, 64)
+            .store_slice(data::staker)
+            .store_uint(data::option, 2)
+        .end_cell(), 64);
     }
 
     elseif (context::op == op::process_stake) {
+        throw_unless(error::already_staked, data::staked_at == 0);
+        throw_unless(error::wrong_sender, equal_slices(context::sender, data::master));
 
+        data::staker = in_msg_body~load_msg_addr();
+        data::option = in_msg_body~load_uint(2);
+        data::staked_at = now();
     }
 
     else {

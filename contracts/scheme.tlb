@@ -9,4 +9,4 @@ stake#429c67c7 option:StakingOption = ForwardPayload;
 process_stake#612d5aaa staker:MsgAddressInt option:StakingOption = InternalMsgBody;
 
 claim#7f69c418 = InternalMsgBody;
-request_claim#4222a922 staker:MsgAddressInt = InternalMsgBody;
+request_claim#6f062668 staker:MsgAddressInt option:StakingOption = InternalMsgBody;
