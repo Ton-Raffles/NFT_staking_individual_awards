@@ -1,9 +1,29 @@
-import { Address, beginCell, Cell, Contract, contractAddress, ContractProvider, Sender, SendMode } from '@ton/core';
+import {
+    Address,
+    beginCell,
+    Cell,
+    Contract,
+    contractAddress,
+    ContractProvider,
+    Dictionary,
+    Sender,
+    SendMode,
+} from '@ton/core';
 
-export type StakingMasterConfig = {};
+export type StakingMasterConfig = {
+    items: Dictionary<Address, bigint>;
+    jettonMaster: Address;
+    jettonWalletCode: Cell;
+    helperCode: Cell;
+};
 
 export function stakingMasterConfigToCell(config: StakingMasterConfig): Cell {
-    return beginCell().endCell();
+    return beginCell()
+        .storeDict(config.items)
+        .storeAddress(config.jettonMaster)
+        .storeRef(config.jettonWalletCode)
+        .storeRef(config.helperCode)
+        .endCell();
 }
 
 export class StakingMaster implements Contract {

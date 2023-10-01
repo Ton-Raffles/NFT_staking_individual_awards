@@ -1,9 +1,12 @@
 import { Address, beginCell, Cell, Contract, contractAddress, ContractProvider, Sender, SendMode } from '@ton/core';
 
-export type StakingHelperConfig = {};
+export type StakingHelperConfig = {
+    master: Address;
+    item: Address;
+};
 
 export function stakingHelperConfigToCell(config: StakingHelperConfig): Cell {
-    return beginCell().endCell();
+    return beginCell().storeAddress(config.master).storeAddress(config.item).storeUint(0, 68).endCell();
 }
 
 export class StakingHelper implements Contract {
