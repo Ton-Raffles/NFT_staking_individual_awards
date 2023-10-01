@@ -9,6 +9,7 @@ import {
     Sender,
     SendMode,
 } from '@ton/core';
+import { StakingHelper } from './StakingHelper';
 
 export type StakingMasterConfig = {
     items: Dictionary<Address, bigint>;
@@ -45,5 +46,12 @@ export class StakingMaster implements Contract {
             sendMode: SendMode.PAY_GAS_SEPARATELY,
             body: beginCell().endCell(),
         });
+    }
+
+    async getHelper(provider: ContractProvider, item: Address): Promise<StakingHelper> {
+        const stack = (
+            await provider.get('get_helper', [{ type: 'slice', cell: beginCell().storeAddress(item).endCell() }])
+        ).stack;
+        return StakingHelper.createFromAddress(stack.readAddress());
     }
 }

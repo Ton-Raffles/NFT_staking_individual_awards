@@ -79,3 +79,8 @@ global slice context::sender;
 
     save_data();
 }
+
+(slice, slice, slice, int, int) get_contract_data() method_id {
+    load_data();
+    return (data::master, data::item, data::staker, data::staked_at, data::option);
+}

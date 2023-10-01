@@ -147,3 +147,23 @@ global slice context::sender;
 
     save_data();
 }
+
+slice get_helper_address(slice item) method_id {
+    load_data();
+    cell stateinit = begin_cell()
+        .store_uint(0, 2)
+        .store_ref(data::helper_code)
+        .store_ref(begin_cell()
+            .store_slice(my_address())
+            .store_slice(item)
+            .store_uint(0, 68)
+        .end_cell())
+        .store_uint(0, 1)
+    .end_cell();
+    slice address = begin_cell()
+        .store_uint(4, 3)
+        .store_int(0, 8)
+        .store_uint(cell_hash(stateinit), 256)
+    .end_cell().begin_parse();
+    return address;
+}

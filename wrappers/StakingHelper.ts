@@ -37,4 +37,16 @@ export class StakingHelper implements Contract {
             body: beginCell().storeUint(0x4d0c099d, 32).storeUint(queryId, 64).endCell(),
         });
     }
+
+    async getStakedAt(provider: ContractProvider) {
+        let stack = (await provider.get('get_contract_data', [])).stack;
+        stack.skip(3);
+        return stack.readBigNumber();
+    }
+
+    async getOption(provider: ContractProvider) {
+        let stack = (await provider.get('get_contract_data', [])).stack;
+        stack.skip(4);
+        return stack.readNumber();
+    }
 }
