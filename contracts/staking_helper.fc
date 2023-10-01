@@ -42,6 +42,8 @@ global slice context::sender;
     load_data();
 
     if (context::op == op::claim) {
+        throw_unless(error::not_enough_value, msg_value >= const::transfer_fees * 3);
+
         throw_if(error::not_staked, data::staked_at == 0);
         throw_unless(error::wrong_sender, equal_slices(context::sender, data::staker));
         int time_passed = now() - data::staked_at;

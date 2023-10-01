@@ -10,5 +10,8 @@ const int error::wrong_sender = 700;
 const int error::not_staked = 701;
 const int error::already_staked = 702;
 const int error::too_early = 703;
+const int error::not_enough_value = 704;
 
 const int const::day = 86400;
+const int const::transfer_fees = 50000000;
+const int const::fees = 50000000;

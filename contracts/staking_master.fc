@@ -121,14 +121,25 @@ global slice context::sender;
         send_raw_message(begin_cell()
             .store_uint(0x18, 6)
             .store_slice(jetton_wallet_address)
-            .store_coins(0)
+            .store_coins(const::transfer_fees)
             .store_uint(0, 107)
             .store_uint(op::jetton::transfer, 32)
             .store_uint(context::query_id, 64)
             .store_coins(amount)
             .store_slice(staker)
             .store_uint(0, 8)
-        .end_cell(), 64);
+        .end_cell(), 1);
+
+        send_raw_message(begin_cell()
+            .store_uint(0x18, 6)
+            .store_slice(item)
+            .store_coins(const::transfer_fees)
+            .store_uint(0, 107)
+            .store_uint(op::nft::transfer, 32)
+            .store_uint(context::query_id, 64)
+            .store_slice(staker)
+            .store_uint(0, 8)
+        .end_cell(), 1);
     }
 
     else {
