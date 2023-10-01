@@ -59,6 +59,10 @@ global slice context::sender;
             .store_slice(data::staker)
             .store_uint(data::option, 2)
         .end_cell(), 64);
+
+        data::staker = "";
+        data::option = 0;
+        data::staked_at = 0;
     }
 
     elseif (context::op == op::process_stake) {
