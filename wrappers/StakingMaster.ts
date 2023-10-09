@@ -68,12 +68,7 @@ export class StakingMaster implements Contract {
     }
 
     async getItemsStakedByUser(provider: ContractProvider, user: Address): Promise<Address[]> {
-        const stack = (await provider.get('get_staked_items', [])).stack;
-        const dictCell = stack.readCellOpt();
-        if (!dictCell) {
-            return [];
-        }
-        const dict = dictCell.beginParse().loadDictDirect(Dictionary.Keys.Address(), Dictionary.Values.Address());
+        const dict = await this.getStakedItems(provider);
         for (const [key, value] of dict) {
             if (!value.equals(user)) {
                 dict.delete(key);
