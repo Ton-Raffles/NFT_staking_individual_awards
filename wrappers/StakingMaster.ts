@@ -57,4 +57,28 @@ export class StakingMaster implements Contract {
         ).stack;
         return StakingHelper.createFromAddress(stack.readAddress());
     }
+
+    async getStakedItems(provider: ContractProvider): Promise<Dictionary<Address, Address>> {
+        const stack = (await provider.get('get_staked_items', [])).stack;
+        const d = stack.readCellOpt();
+        if (d) {
+            return d.beginParse().loadDictDirect(Dictionary.Keys.Address(), Dictionary.Values.Address());
+        }
+        return Dictionary.empty(Dictionary.Keys.Address(), Dictionary.Values.Address());
+    }
+
+    async getItemsStakedByUser(provider: ContractProvider, user: Address): Promise<Address[]> {
+        const stack = (await provider.get('get_staked_items', [])).stack;
+        const dictCell = stack.readCellOpt();
+        if (!dictCell) {
+            return [];
+        }
+        const dict = dictCell.beginParse().loadDictDirect(Dictionary.Keys.Address(), Dictionary.Values.Address());
+        for (const [key, value] of dict) {
+            if (!value.equals(user)) {
+                dict.delete(key);
+            }
+        }
+        return dict.keys();
+    }
 }

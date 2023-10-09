@@ -164,3 +164,8 @@ slice get_helper_address(slice item) method_id {
     (_, slice address) = get_stateinit_and_address_of_helper(item);
     return address;
 }
+
+cell get_staked_items() method_id {
+    load_data();
+    return data::staked_items;
+}
