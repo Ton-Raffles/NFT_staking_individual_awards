@@ -1,4 +1,4 @@
-_ items:(HashmapE 267 Coins) jetton_master:MsgAddressInt jetton_wallet_code:^Cell helper_code:^Cell = StakingMasterStorage;
+_ items:(HashmapE 267 Coins) staked_items:(HashmapE 267 MsgAddressInt) jetton_master:MsgAddressInt jetton_wallet_code:^Cell helper_code:^Cell = StakingMasterStorage;
 _ master:MsgAddressInt item:MsgAddressInt staker:MsgAddressInt staked_at:uint64 claimed_at:uint64 option:uint8 = StakingHelperStorage;
 
 stake#429c67c7 option:uint8 = ForwardPayload;

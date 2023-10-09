@@ -21,6 +21,7 @@ export type StakingMasterConfig = {
 export function stakingMasterConfigToCell(config: StakingMasterConfig): Cell {
     return beginCell()
         .storeDict(config.items)
+        .storeDict(null)
         .storeAddress(config.jettonMaster)
         .storeRef(config.jettonWalletCode)
         .storeRef(config.helperCode)
