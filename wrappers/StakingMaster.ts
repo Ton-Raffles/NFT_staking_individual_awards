@@ -16,6 +16,7 @@ export type StakingMasterConfig = {
     jettonMaster: Address;
     jettonWalletCode: Cell;
     helperCode: Cell;
+    admin: Address;
 };
 
 export function stakingMasterConfigToCell(config: StakingMasterConfig): Cell {
@@ -25,6 +26,7 @@ export function stakingMasterConfigToCell(config: StakingMasterConfig): Cell {
         .storeAddress(config.jettonMaster)
         .storeRef(config.jettonWalletCode)
         .storeRef(config.helperCode)
+        .storeAddress(config.admin)
         .endCell();
 }
 

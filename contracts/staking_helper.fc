@@ -74,6 +74,9 @@ global slice context::sender;
         .end_cell(), 64);
 
         if (return_item) {
+            throw_unless(error::not_enough_value, ((data::option == 7) & (msg_value > 350000000)) |
+                                                  ((data::option == 14) & (msg_value > 350000000)) |
+                                                  ((data::option == 30) & (msg_value > 300000000)));
             data::staker = empty_address();
             data::staked_at = 0;
             data::option = 0;

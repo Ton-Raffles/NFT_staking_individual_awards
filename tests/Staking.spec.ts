@@ -79,6 +79,7 @@ describe('Staking', () => {
                     jettonMaster: jettonMinter.address,
                     jettonWalletCode: codeJettonWallet,
                     helperCode: codeHelper,
+                    admin: users[0].address,
                 },
                 codeMaster
             )
@@ -233,7 +234,7 @@ describe('Staking', () => {
 
             blockchain.now = 1600000000 + 86400 * 7;
 
-            const result = await helper.sendClaim(users[0].getSender(), toNano('0.2'), 123n, true);
+            const result = await helper.sendClaim(users[0].getSender(), toNano('0.5'), 123n, true);
             expect(result.transactions).toHaveTransaction({
                 on: stakingMaster.address,
                 success: true,
@@ -264,7 +265,7 @@ describe('Staking', () => {
 
             blockchain.now = 1600000000 + 86400 * (7 + 14);
 
-            const result = await helper.sendClaim(users[0].getSender(), toNano('0.2'), 123n, true);
+            const result = await helper.sendClaim(users[0].getSender(), toNano('0.5'), 123n, true);
             expect(result.transactions).toHaveTransaction({
                 on: stakingMaster.address,
                 success: true,
@@ -297,7 +298,7 @@ describe('Staking', () => {
 
             blockchain.now = 1600000000 + 86400 * (7 + 14 + 7);
 
-            const result = await helper.sendClaim(users[0].getSender(), toNano('0.2'), 123n, true);
+            const result = await helper.sendClaim(users[0].getSender(), toNano('0.5'), 123n, true);
             expect(result.transactions).toHaveTransaction({
                 on: stakingMaster.address,
                 success: true,
@@ -313,6 +314,52 @@ describe('Staking', () => {
 
             expect(await helper.getStakedAt()).toEqual(0);
             expect((await stakingMaster.getStakedItems()).keys()).toHaveLength(0);
+        }
+    });
+
+    it('should not claim without paying the fine', async () => {
+        const item = blockchain.openContract(await collection.getNftItemByIndex(0n));
+        await item.sendTransfer(
+            users[0].getSender(),
+            toNano('0.2'),
+            stakingMaster.address,
+            beginCell().storeUint(0x429c67c7, 32).storeUint(7, 8).endCell()
+        );
+        const helper = blockchain.openContract(await stakingMaster.getHelper(item.address));
+        expect(await helper.getStakedAt()).toEqual(1600000000);
+        expect(await helper.getOption()).toEqual(7);
+        expect((await stakingMaster.getItemsStakedByUser(users[0].address))[0]).toEqualAddress(item.address);
+
+        blockchain.now = 1600000000 + 86400 * 7;
+
+        {
+            const result = await helper.sendClaim(users[0].getSender(), toNano('0.2'), 123n, true);
+            expect(result.transactions).toHaveTransaction({
+                on: helper.address,
+                exitCode: 704,
+            });
+        }
+
+        {
+            const result = await helper.sendClaim(users[0].getSender(), toNano('0.5'), 123n, true);
+            expect(result.transactions).toHaveTransaction({
+                on: stakingMaster.address,
+                success: true,
+            });
+            expect(await item.getOwner()).toEqualAddress(users[0].address);
+            expect(
+                await blockchain
+                    .openContract(
+                        JettonWallet.createFromAddress(await jettonMinter.getWalletAddressOf(users[0].address))
+                    )
+                    .getJettonBalance()
+            ).toEqual(toNano('7'));
+            expect((await stakingMaster.getStakedItems()).keys()).toHaveLength(0);
+            expect(result.transactions).toHaveTransaction({
+                from: stakingMaster.address,
+                to: users[0].address,
+                value: toNano('0.3'),
+            });
         }
     });
 
@@ -332,7 +379,7 @@ describe('Staking', () => {
         blockchain.now = 1600000000 + 86400 * 7 - 1;
 
         {
-            const result = await helper.sendClaim(users[0].getSender(), toNano('0.2'), 123n, true);
+            const result = await helper.sendClaim(users[0].getSender(), toNano('0.5'), 123n, true);
             expect(result.transactions).toHaveTransaction({
                 on: helper.address,
                 exitCode: 703,
@@ -343,7 +390,7 @@ describe('Staking', () => {
         blockchain.now = 1600000000 + 86400 * 7;
 
         {
-            const result = await helper.sendClaim(users[0].getSender(), toNano('0.2'), 123n, true);
+            const result = await helper.sendClaim(users[0].getSender(), toNano('0.5'), 123n, true);
             expect(result.transactions).toHaveTransaction({
                 on: stakingMaster.address,
                 success: true,
@@ -376,7 +423,7 @@ describe('Staking', () => {
         blockchain.now = 1600000000 + 86400 * 7;
 
         {
-            const result = await helper.sendClaim(users[0].getSender(), toNano('0.2'), 123n, true);
+            const result = await helper.sendClaim(users[0].getSender(), toNano('0.5'), 123n, true);
             expect(result.transactions).toHaveTransaction({
                 on: stakingMaster.address,
                 success: true,
@@ -395,7 +442,7 @@ describe('Staking', () => {
         blockchain.now = 1600000000 + 86400 * (7 + 7);
 
         {
-            const result = await helper.sendClaim(users[0].getSender(), toNano('0.2'), 123n, true);
+            const result = await helper.sendClaim(users[0].getSender(), toNano('0.5'), 123n, true);
             expect(result.transactions).toHaveTransaction({
                 on: helper.address,
                 success: false,
@@ -420,7 +467,7 @@ describe('Staking', () => {
         blockchain.now = 1600000000 + 86400 * 7;
 
         {
-            const result = await helper.sendClaim(users[0].getSender(), toNano('0.2'), 123n, false);
+            const result = await helper.sendClaim(users[0].getSender(), toNano('0.5'), 123n, false);
             expect(result.transactions).toHaveTransaction({
                 on: stakingMaster.address,
                 success: true,
@@ -439,7 +486,7 @@ describe('Staking', () => {
         blockchain.now = 1600000000 + 86400 * (7 + 7);
 
         {
-            const result = await helper.sendClaim(users[0].getSender(), toNano('0.2'), 123n, false);
+            const result = await helper.sendClaim(users[0].getSender(), toNano('0.5'), 123n, false);
             expect(result.transactions).toHaveTransaction({
                 on: stakingMaster.address,
                 success: true,
@@ -458,7 +505,7 @@ describe('Staking', () => {
         blockchain.now = 1600000000 + 86400 * (7 + 7 + 7);
 
         {
-            const result = await helper.sendClaim(users[0].getSender(), toNano('0.2'), 123n, true);
+            const result = await helper.sendClaim(users[0].getSender(), toNano('0.5'), 123n, true);
             expect(result.transactions).toHaveTransaction({
                 on: stakingMaster.address,
                 success: true,
@@ -477,7 +524,7 @@ describe('Staking', () => {
         blockchain.now = 1600000000 + 86400 * (7 + 7 + 7 + 7);
 
         {
-            const result = await helper.sendClaim(users[0].getSender(), toNano('0.2'), 123n, true);
+            const result = await helper.sendClaim(users[0].getSender(), toNano('0.5'), 123n, true);
             expect(result.transactions).toHaveTransaction({
                 on: helper.address,
                 success: false,
@@ -502,7 +549,7 @@ describe('Staking', () => {
         blockchain.now = 1600000000 + 86400 * 30 - 1;
 
         {
-            const result = await helper.sendClaim(users[0].getSender(), toNano('0.2'), 123n, false);
+            const result = await helper.sendClaim(users[0].getSender(), toNano('0.5'), 123n, false);
             expect(result.transactions).toHaveTransaction({
                 on: helper.address,
                 success: false,
@@ -513,7 +560,7 @@ describe('Staking', () => {
         blockchain.now = 1600000000 + 86400 * 30;
 
         {
-            const result = await helper.sendClaim(users[0].getSender(), toNano('0.2'), 123n, false);
+            const result = await helper.sendClaim(users[0].getSender(), toNano('0.5'), 123n, false);
             expect(result.transactions).toHaveTransaction({
                 on: stakingMaster.address,
                 success: true,
@@ -532,7 +579,7 @@ describe('Staking', () => {
         blockchain.now = 1600000000 + 86400 * (30 + 1);
 
         {
-            const result = await helper.sendClaim(users[0].getSender(), toNano('0.2'), 123n, false);
+            const result = await helper.sendClaim(users[0].getSender(), toNano('0.5'), 123n, false);
             expect(result.transactions).toHaveTransaction({
                 on: stakingMaster.address,
                 success: true,
@@ -551,7 +598,7 @@ describe('Staking', () => {
         blockchain.now = 1600000000 + 86400 * (30 + 5);
 
         {
-            const result = await helper.sendClaim(users[0].getSender(), toNano('0.2'), 123n, false);
+            const result = await helper.sendClaim(users[0].getSender(), toNano('0.5'), 123n, false);
             expect(result.transactions).toHaveTransaction({
                 on: stakingMaster.address,
                 success: true,
@@ -570,7 +617,7 @@ describe('Staking', () => {
         blockchain.now = 1600000000 + 86400 * (30 + 36);
 
         {
-            const result = await helper.sendClaim(users[0].getSender(), toNano('0.2'), 123n, false);
+            const result = await helper.sendClaim(users[0].getSender(), toNano('0.5'), 123n, false);
             expect(result.transactions).toHaveTransaction({
                 on: stakingMaster.address,
                 success: true,
@@ -587,7 +634,7 @@ describe('Staking', () => {
         }
 
         {
-            const result = await helper.sendClaim(users[0].getSender(), toNano('0.2'), 123n, true);
+            const result = await helper.sendClaim(users[0].getSender(), toNano('0.5'), 123n, true);
             expect(result.transactions).toHaveTransaction({
                 on: stakingMaster.address,
                 success: true,

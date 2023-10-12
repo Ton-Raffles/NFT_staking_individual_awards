@@ -7,6 +7,7 @@ global cell data::staked_items;
 global slice data::jetton_master;
 global cell data::jetton_wallet_code;
 global cell data::helper_code;
+global slice data::admin;
 
 global int context::op;
 global int context::query_id;
@@ -19,6 +20,7 @@ global slice context::sender;
     data::jetton_master = ds~load_msg_addr();
     data::jetton_wallet_code = ds~load_ref();
     data::helper_code = ds~load_ref();
+    data::admin = ds~load_msg_addr();
 }
 
 () save_data() impure {
@@ -28,6 +30,7 @@ global slice context::sender;
         .store_slice(data::jetton_master)
         .store_ref(data::jetton_wallet_code)
         .store_ref(data::helper_code)
+        .store_slice(data::admin)
     .end_cell());
 }
 
@@ -149,6 +152,13 @@ global slice context::sender;
                 .store_uint(0, 8)
             .end_cell(), 1);
             data::staked_items~dict_delete?(267, item);
+
+            send_raw_message(begin_cell()
+                .store_uint(0x10, 6)
+                .store_slice(data::admin)
+                .store_coins((option == 30) ? 250000000 : 300000000)
+                .store_uint(0, 107)
+            .end_cell(), 1);
         }
     }
 
