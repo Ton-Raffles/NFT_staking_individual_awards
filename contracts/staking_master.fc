@@ -179,3 +179,11 @@ cell get_staked_items() method_id {
     load_data();
     return data::staked_items;
 }
+
+int get_estimated_reward(slice item, int time_passed) method_id {
+    load_data();
+    (slice value, int f?) = data::items.dict_get?(267, item);
+    int daily_reward = value~load_coins();
+    int amount = daily_reward * (time_passed / const::day);
+    return amount;
+}

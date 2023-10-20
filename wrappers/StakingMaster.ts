@@ -78,4 +78,14 @@ export class StakingMaster implements Contract {
         }
         return dict.keys();
     }
+
+    async getEstimatedRewards(provider: ContractProvider, item: Address, timePassed: number): Promise<bigint> {
+        const stack = (
+            await provider.get('get_estimated_reward', [
+                { type: 'slice', cell: beginCell().storeAddress(item).endCell() },
+                { type: 'int', value: BigInt(timePassed) },
+            ])
+        ).stack;
+        return stack.readBigNumber();
+    }
 }

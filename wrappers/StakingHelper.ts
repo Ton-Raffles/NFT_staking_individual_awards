@@ -50,9 +50,15 @@ export class StakingHelper implements Contract {
         return stack.readNumber();
     }
 
-    async getOption(provider: ContractProvider) {
+    async getClaimedAt(provider: ContractProvider) {
         let stack = (await provider.get('get_contract_data', [])).stack;
         stack.skip(4);
+        return stack.readNumber();
+    }
+
+    async getOption(provider: ContractProvider) {
+        let stack = (await provider.get('get_contract_data', [])).stack;
+        stack.skip(5);
         return stack.readNumber();
     }
 }
