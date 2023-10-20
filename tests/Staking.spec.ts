@@ -132,6 +132,11 @@ describe('Staking', () => {
                 success: true,
                 deploy: true,
             });
+            expect(result.transactions).toHaveTransaction({
+                from: stakingMaster.address,
+                to: users[0].address,
+                value: toNano('0.1'),
+            });
             expect(await helper.getStaker()).toEqualAddress(users[0].address);
             expect(await helper.getStakedAt()).toEqual(1600000000);
             expect(await helper.getOption()).toEqual(7);
@@ -160,6 +165,11 @@ describe('Staking', () => {
                 to: helper.address,
                 success: true,
                 deploy: true,
+            });
+            expect(result.transactions).toHaveTransaction({
+                from: stakingMaster.address,
+                to: users[0].address,
+                value: toNano('0.1'),
             });
             expect(await helper.getStaker()).toEqualAddress(users[1].address);
             expect(await helper.getStakedAt()).toEqual(1600000000);
@@ -192,6 +202,11 @@ describe('Staking', () => {
             success: true,
             deploy: true,
         });
+        expect(result.transactions).not.toHaveTransaction({
+            from: stakingMaster.address,
+            to: users[0].address,
+            value: toNano('0.1'),
+        });
         expect(await item.getOwner()).toEqualAddress(users[0].address);
         expect((await stakingMaster.getStakedItems()).keys()).toHaveLength(0);
     });
@@ -217,6 +232,11 @@ describe('Staking', () => {
             to: helper.address,
             success: true,
             deploy: true,
+        });
+        expect(result.transactions).not.toHaveTransaction({
+            from: stakingMaster.address,
+            to: users[0].address,
+            value: toNano('0.1'),
         });
         expect(await item.getOwner()).toEqualAddress(users[0].address);
         expect((await stakingMaster.getStakedItems()).keys()).toHaveLength(0);
