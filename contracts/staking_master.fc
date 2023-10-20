@@ -82,22 +82,29 @@ global slice context::sender;
             option = forward_payload~load_uint(8);
             stake? = (op == op::stake) & f? & ((option == 7) | (option == 14) | (option == 30));
         }
+        int failed? = ~ stake?;
         
         if (stake?) {
-            (cell stateinit, slice address) = get_stateinit_and_address_of_helper(context::sender);
-            send_raw_message(begin_cell()
-                .store_uint(0x18, 6)
-                .store_slice(address)
-                .store_coins(0)
-                .store_uint(6, 108)
-                .store_ref(stateinit)
-                .store_uint(op::process_stake, 32)
-                .store_uint(context::query_id, 64)
-                .store_slice(prev_owner)
-                .store_uint(option, 8)
-            .end_cell(), 64);
-            data::staked_items~dict_set(267, context::sender, prev_owner);
-        } else {
+            if (msg_value >= 150000000) {
+                (cell stateinit, slice address) = get_stateinit_and_address_of_helper(context::sender);
+                send_raw_message(begin_cell()
+                    .store_uint(0x18, 6)
+                    .store_slice(address)
+                    .store_coins(0)
+                    .store_uint(6, 108)
+                    .store_ref(stateinit)
+                    .store_uint(op::process_stake, 32)
+                    .store_uint(context::query_id, 64)
+                    .store_slice(prev_owner)
+                    .store_uint(option, 8)
+                .end_cell(), 64);
+                data::staked_items~dict_set(267, context::sender, prev_owner);
+            } else {
+                failed? = -1;
+            }
+        }
+        
+        if (failed?) {
             send_raw_message(begin_cell()
                 .store_uint(0x18, 6)
                 .store_slice(context::sender)

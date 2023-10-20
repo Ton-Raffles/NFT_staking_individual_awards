@@ -115,9 +115,10 @@ describe('Staking', () => {
 
             const result = await item.sendTransfer(
                 users[0].getSender(),
-                toNano('0.2'),
+                toNano('0.4'),
                 stakingMaster.address,
-                beginCell().storeUint(0x429c67c7, 32).storeUint(7, 8).endCell()
+                beginCell().storeUint(0x429c67c7, 32).storeUint(7, 8).endCell(),
+                toNano('0.15')
             );
 
             expect(result.transactions).toHaveTransaction({
@@ -145,7 +146,8 @@ describe('Staking', () => {
                 users[1].getSender(),
                 toNano('0.2'),
                 stakingMaster.address,
-                beginCell().storeUint(0x429c67c7, 32).storeUint(30, 8).endCell()
+                beginCell().storeUint(0x429c67c7, 32).storeUint(30, 8).endCell(),
+                toNano('0.15')
             );
 
             expect(result.transactions).toHaveTransaction({
@@ -175,7 +177,8 @@ describe('Staking', () => {
             users[0].getSender(),
             toNano('0.2'),
             stakingMaster.address,
-            beginCell().storeUint(0x429c67c7, 32).storeUint(7, 8).endCell()
+            beginCell().storeUint(0x429c67c7, 32).storeUint(7, 8).endCell(),
+            toNano('0.15')
         );
 
         expect(result.transactions).toHaveTransaction({
@@ -200,7 +203,8 @@ describe('Staking', () => {
             users[0].getSender(),
             toNano('0.2'),
             stakingMaster.address,
-            beginCell().storeUint(0x429c67c7, 32).storeUint(123, 8).endCell()
+            beginCell().storeUint(0x429c67c7, 32).storeUint(123, 8).endCell(),
+            toNano('0.15')
         );
 
         expect(result.transactions).toHaveTransaction({
@@ -225,7 +229,8 @@ describe('Staking', () => {
                 users[0].getSender(),
                 toNano('0.2'),
                 stakingMaster.address,
-                beginCell().storeUint(0x429c67c7, 32).storeUint(7, 8).endCell()
+                beginCell().storeUint(0x429c67c7, 32).storeUint(7, 8).endCell(),
+                toNano('0.15')
             );
             const helper = blockchain.openContract(await stakingMaster.getHelper(item.address));
             expect(await helper.getStakedAt()).toEqual(1600000000);
@@ -256,7 +261,8 @@ describe('Staking', () => {
                 users[0].getSender(),
                 toNano('0.2'),
                 stakingMaster.address,
-                beginCell().storeUint(0x429c67c7, 32).storeUint(14, 8).endCell()
+                beginCell().storeUint(0x429c67c7, 32).storeUint(14, 8).endCell(),
+                toNano('0.15')
             );
             const helper = blockchain.openContract(await stakingMaster.getHelper(item.address));
             expect(await helper.getStakedAt()).toEqual(1600000000 + 86400 * 7);
@@ -289,7 +295,8 @@ describe('Staking', () => {
                 users[0].getSender(),
                 toNano('0.2'),
                 stakingMaster.address,
-                beginCell().storeUint(0x429c67c7, 32).storeUint(7, 8).endCell()
+                beginCell().storeUint(0x429c67c7, 32).storeUint(7, 8).endCell(),
+                toNano('0.15')
             );
             const helper = blockchain.openContract(await stakingMaster.getHelper(item.address));
             expect(await helper.getStakedAt()).toEqual(1600000000 + 86400 * (7 + 14));
@@ -323,7 +330,8 @@ describe('Staking', () => {
             users[0].getSender(),
             toNano('0.2'),
             stakingMaster.address,
-            beginCell().storeUint(0x429c67c7, 32).storeUint(7, 8).endCell()
+            beginCell().storeUint(0x429c67c7, 32).storeUint(7, 8).endCell(),
+            toNano('0.15')
         );
         const helper = blockchain.openContract(await stakingMaster.getHelper(item.address));
         expect(await helper.getStakedAt()).toEqual(1600000000);
@@ -369,7 +377,8 @@ describe('Staking', () => {
             users[0].getSender(),
             toNano('0.2'),
             stakingMaster.address,
-            beginCell().storeUint(0x429c67c7, 32).storeUint(7, 8).endCell()
+            beginCell().storeUint(0x429c67c7, 32).storeUint(7, 8).endCell(),
+            toNano('0.15')
         );
         const helper = blockchain.openContract(await stakingMaster.getHelper(item.address));
         expect(await helper.getStakedAt()).toEqual(1600000000);
@@ -413,7 +422,8 @@ describe('Staking', () => {
             users[0].getSender(),
             toNano('0.2'),
             stakingMaster.address,
-            beginCell().storeUint(0x429c67c7, 32).storeUint(7, 8).endCell()
+            beginCell().storeUint(0x429c67c7, 32).storeUint(7, 8).endCell(),
+            toNano('0.15')
         );
         const helper = blockchain.openContract(await stakingMaster.getHelper(item.address));
         expect(await helper.getStakedAt()).toEqual(1600000000);
@@ -457,7 +467,8 @@ describe('Staking', () => {
             users[0].getSender(),
             toNano('0.2'),
             stakingMaster.address,
-            beginCell().storeUint(0x429c67c7, 32).storeUint(7, 8).endCell()
+            beginCell().storeUint(0x429c67c7, 32).storeUint(7, 8).endCell(),
+            toNano('0.15')
         );
         const helper = blockchain.openContract(await stakingMaster.getHelper(item.address));
         expect(await helper.getStakedAt()).toEqual(1600000000);
@@ -539,7 +550,8 @@ describe('Staking', () => {
             users[0].getSender(),
             toNano('0.2'),
             stakingMaster.address,
-            beginCell().storeUint(0x429c67c7, 32).storeUint(30, 8).endCell()
+            beginCell().storeUint(0x429c67c7, 32).storeUint(30, 8).endCell(),
+            toNano('0.15')
         );
         const helper = blockchain.openContract(await stakingMaster.getHelper(item.address));
         expect(await helper.getStakedAt()).toEqual(1600000000);

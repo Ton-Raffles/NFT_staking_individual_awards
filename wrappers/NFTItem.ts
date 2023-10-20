@@ -20,7 +20,8 @@ export class NFTItem implements Contract {
         via: Sender,
         value: bigint,
         recipient: Address,
-        forwardPayload?: Cell
+        forwardPayload?: Cell,
+        forwardAmount?: bigint
     ) {
         await provider.internal(via, {
             value,
@@ -31,7 +32,7 @@ export class NFTItem implements Contract {
                 .storeAddress(recipient)
                 .storeAddress(await this.getOwner(provider))
                 .storeUint(0, 1)
-                .storeCoins(toNano('0.1'))
+                .storeCoins(forwardAmount ? forwardAmount : toNano('0.1'))
                 .storeMaybeRef(forwardPayload)
                 .endCell(),
         });
