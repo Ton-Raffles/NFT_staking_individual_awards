@@ -109,6 +109,26 @@ describe('Staking', () => {
         // blockchain and stakingMaster are ready to use
     });
 
+    it('should withdraw jettons by admin', async () => {
+        const result = await stakingMaster.sendAdminJettonsWithdrawal(
+            users[0].getSender(),
+            toNano('0.15'),
+            123n,
+            toNano('0.1')
+        );
+
+        expect(result.transactions).toHaveTransaction({
+            from: users[0].address,
+            to: stakingMaster.address,
+            success: true,
+        });
+        expect(
+            await blockchain
+                .openContract(JettonWallet.createFromAddress(await jettonMinter.getWalletAddressOf(users[0].address)))
+                .getJettonBalance()
+        ).toEqual(toNano('0.1'));
+    });
+
     it('should stake items', async () => {
         {
             const item = blockchain.openContract(await collection.getNftItemByIndex(0n));

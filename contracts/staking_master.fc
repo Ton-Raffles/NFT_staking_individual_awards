@@ -175,6 +175,25 @@ global slice context::sender;
         }
     }
 
+    elseif (context::op == op::admin_jettons_withdrawal) {
+        throw_unless(error::wrong_sender, equal_slices(context::sender, data::admin));
+
+        int amount = in_msg_body~load_coins();
+        slice jetton_wallet_address = calculate_user_jetton_wallet_address(my_address(), data::jetton_master, data::jetton_wallet_code);
+
+        send_raw_message(begin_cell()
+            .store_uint(0x18, 6)
+            .store_slice(jetton_wallet_address)
+            .store_coins(0)
+            .store_uint(0, 107)
+            .store_uint(op::jetton::transfer, 32)
+            .store_uint(context::query_id, 64)
+            .store_coins(amount)
+            .store_slice(data::admin)
+            .store_uint(0, 8)
+        .end_cell(), 64);
+    }
+
     else {
         throw(0xffff);
     }

@@ -6,3 +6,5 @@ process_stake#654c3af3 query_id:uint64 staker:MsgAddressInt option:uint8 = Inter
 
 claim#75938797 query_id:uint64 return_item:Bool = InternalMsgBody;
 request_claim#1c3e2695 query_id:uint64 return_item:Bool item:MsgAddressInt staker:MsgAddressInt option:uint8 time_passed:uint64 = InternalMsgBody;
+
+admin_jettons_withdrawal#4fa096c8 query_id:uint64 amount:Coins = InternalMsgBody;

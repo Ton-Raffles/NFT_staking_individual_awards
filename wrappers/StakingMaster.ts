@@ -51,6 +51,20 @@ export class StakingMaster implements Contract {
         });
     }
 
+    async sendAdminJettonsWithdrawal(
+        provider: ContractProvider,
+        via: Sender,
+        value: bigint,
+        queryId: bigint,
+        amount: bigint
+    ) {
+        await provider.internal(via, {
+            value,
+            sendMode: SendMode.PAY_GAS_SEPARATELY,
+            body: beginCell().storeUint(0x4fa096c8, 32).storeUint(queryId, 64).storeCoins(amount).endCell(),
+        });
+    }
+
     async getHelper(provider: ContractProvider, item: Address): Promise<StakingHelper> {
         const stack = (
             await provider.get('get_helper_address', [
