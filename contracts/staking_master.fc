@@ -36,6 +36,8 @@ global slice context::sender;
 
 (slice, int) dict_get?(cell dict, int key_len, slice index) asm(index dict key_len) "DICTGET" "NULLSWAPIFNOT";
 (cell, int) dict_delete?(cell dict, int key_len, slice index) asm(index dict key_len) "DICTDEL";
+(slice, slice, int) dict_get_next?(cell dict, int key_len, slice pivot) asm(pivot dict key_len -> 1 0 2) "DICTGETNEXT" "NULLSWAPIFNOT2";
+(slice, slice, int) dict_get_min?(cell dict, int key_len) asm (-> 1 0 2) "DICTMIN" "NULLSWAPIFNOT2";
 
 (cell, slice) get_stateinit_and_address_of_helper(slice item) inline {
     cell stateinit = begin_cell()
@@ -54,6 +56,24 @@ global slice context::sender;
         .store_uint(cell_hash(stateinit), 256)
     .end_cell().begin_parse();
     return (stateinit, address);
+}
+
+cell merge_dictionaries(cell self, cell other) {
+    (slice key, slice value, int f?) = other.dict_get_min?(267);
+    while (f?) {
+        self~dict_set(267, key, value);
+        (key, value, f?) = other.dict_get_next?(267, key);
+    }
+    return self;
+}
+
+cell subtract_dictionaries(cell self, cell other) {
+    (slice key, slice value, int f?) = other.dict_get_min?(267);
+    while (f?) {
+        self~dict_delete?(267, key);
+        (key, value, f?) = other.dict_get_next?(267, key);
+    }
+    return self;
 }
 
 () recv_internal(int my_balance, int msg_value, cell in_msg_full, slice in_msg_body) impure {
@@ -194,6 +214,20 @@ global slice context::sender;
         .end_cell(), 64);
     }
 
+    elseif (context::op == op::admin_add_items) {
+        throw_unless(error::wrong_sender, equal_slices(context::sender, data::admin));
+
+        cell items = in_msg_body~load_dict();
+        data::items = merge_dictionaries(data::items, items);
+    }
+
+    elseif (context::op == op::admin_remove_items) {
+        throw_unless(error::wrong_sender, equal_slices(context::sender, data::admin));
+
+        cell items = in_msg_body~load_dict();
+        data::items = subtract_dictionaries(data::items, items);
+    }
+
     else {
         throw(0xffff);
     }
@@ -218,4 +252,9 @@ int get_estimated_reward(slice item, int time_passed) method_id {
     int daily_reward = value~load_coins();
     int amount = daily_reward * (time_passed / const::day);
     return amount;
+}
+
+cell get_items() method_id {
+    load_data();
+    return data::items;
 }
