@@ -8,3 +8,5 @@ claim#75938797 query_id:uint64 return_item:Bool = InternalMsgBody;
 request_claim#1c3e2695 query_id:uint64 return_item:Bool item:MsgAddressInt staker:MsgAddressInt option:uint8 time_passed:uint64 = InternalMsgBody;
 
 admin_jettons_withdrawal#4fa096c8 query_id:uint64 amount:Coins = InternalMsgBody;
+admin_add_items#256f691 query_id:uint64 items:(HashmapE 267 Coins) = InternalMsgBody;
+admin_remove_items#5a7add91 query_id:uint64 items:(HashmapE 267 Coins) = InternalMsgBody;

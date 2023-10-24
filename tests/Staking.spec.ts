@@ -109,6 +109,47 @@ describe('Staking', () => {
         // blockchain and stakingMaster are ready to use
     });
 
+    it('should add more items by admin', async () => {
+        expect((await stakingMaster.getItems()).keys()).toHaveLength(2);
+
+        const result = await stakingMaster.sendAdminAddItems(
+            users[0].getSender(),
+            toNano('0.05'),
+            123n,
+            Dictionary.empty(Dictionary.Keys.Address(), Dictionary.Values.BigVarUint(4)).set(
+                (
+                    await collection.sendMint(users[0].getSender(), toNano('0.05'), 2)
+                ).result.address,
+                toNano('0.2')
+            )
+        );
+
+        expect(result.transactions).toHaveTransaction({
+            from: users[0].address,
+            to: stakingMaster.address,
+            success: true,
+        });
+        expect((await stakingMaster.getItems()).keys()).toHaveLength(3);
+    });
+
+    it('should remove items by admin', async () => {
+        expect((await stakingMaster.getItems()).keys()).toHaveLength(2);
+
+        const result = await stakingMaster.sendAdminRemoveItems(
+            users[0].getSender(),
+            toNano('0.05'),
+            123n,
+            (await stakingMaster.getItems()).keys()
+        );
+
+        expect(result.transactions).toHaveTransaction({
+            from: users[0].address,
+            to: stakingMaster.address,
+            success: true,
+        });
+        expect((await stakingMaster.getItems()).keys()).toHaveLength(0);
+    });
+
     it('should withdraw jettons by admin', async () => {
         const result = await stakingMaster.sendAdminJettonsWithdrawal(
             users[0].getSender(),
