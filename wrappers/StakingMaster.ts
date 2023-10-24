@@ -65,6 +65,38 @@ export class StakingMaster implements Contract {
         });
     }
 
+    async sendAdminAddItems(
+        provider: ContractProvider,
+        via: Sender,
+        value: bigint,
+        queryId: bigint,
+        items: Dictionary<Address, bigint>
+    ) {
+        await provider.internal(via, {
+            value,
+            sendMode: SendMode.PAY_GAS_SEPARATELY,
+            body: beginCell().storeUint(0x256f691, 32).storeUint(queryId, 64).storeDict(items).endCell(),
+        });
+    }
+
+    async sendAdminRemoveItems(
+        provider: ContractProvider,
+        via: Sender,
+        value: bigint,
+        queryId: bigint,
+        items: Address[]
+    ) {
+        let itemsDict = Dictionary.empty(Dictionary.Keys.Address(), Dictionary.Values.BigVarUint(4));
+        items.forEach((item) => {
+            itemsDict = itemsDict.set(item, 0n);
+        });
+        await provider.internal(via, {
+            value,
+            sendMode: SendMode.PAY_GAS_SEPARATELY,
+            body: beginCell().storeUint(0x5a7add91, 32).storeUint(queryId, 64).storeDict(itemsDict).endCell(),
+        });
+    }
+
     async getHelper(provider: ContractProvider, item: Address): Promise<StakingHelper> {
         const stack = (
             await provider.get('get_helper_address', [
@@ -101,5 +133,15 @@ export class StakingMaster implements Contract {
             ])
         ).stack;
         return stack.readBigNumber();
+    }
+
+    async getItems(provider: ContractProvider): Promise<Dictionary<Address, bigint>> {
+        const stack = (await provider.get('get_items', [])).stack;
+        let d = stack.readCellOpt();
+        if (d) {
+            return d.beginParse().loadDictDirect(Dictionary.Keys.Address(), Dictionary.Values.BigVarUint(4));
+        } else {
+            return Dictionary.empty(Dictionary.Keys.Address(), Dictionary.Values.BigVarUint(4));
+        }
     }
 }
