@@ -38,27 +38,22 @@ export class StakingHelper implements Contract {
         });
     }
 
-    async getStaker(provider: ContractProvider) {
+    async getContractData(provider: ContractProvider): Promise<{
+        master: Address;
+        item: Address;
+        staker: Address | null;
+        stakedAt: number;
+        claimedAt: number;
+        option: number;
+    }> {
         let stack = (await provider.get('get_contract_data', [])).stack;
-        stack.skip(2);
-        return stack.readAddress();
-    }
-
-    async getStakedAt(provider: ContractProvider) {
-        let stack = (await provider.get('get_contract_data', [])).stack;
-        stack.skip(3);
-        return stack.readNumber();
-    }
-
-    async getClaimedAt(provider: ContractProvider) {
-        let stack = (await provider.get('get_contract_data', [])).stack;
-        stack.skip(4);
-        return stack.readNumber();
-    }
-
-    async getOption(provider: ContractProvider) {
-        let stack = (await provider.get('get_contract_data', [])).stack;
-        stack.skip(5);
-        return stack.readNumber();
+        return {
+            master: stack.readAddress(),
+            item: stack.readAddress(),
+            staker: stack.readAddressOpt(),
+            stakedAt: stack.readNumber(),
+            claimedAt: stack.readNumber(),
+            option: stack.readNumber(),
+        };
     }
 }

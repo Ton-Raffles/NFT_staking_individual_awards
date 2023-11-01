@@ -198,9 +198,9 @@ describe('Staking', () => {
                 to: users[0].address,
                 value: toNano('0.1'),
             });
-            expect(await helper.getStaker()).toEqualAddress(users[0].address);
-            expect(await helper.getStakedAt()).toEqual(1600000000);
-            expect(await helper.getOption()).toEqual(7);
+            expect((await helper.getContractData()).staker).toEqualAddress(users[0].address);
+            expect((await helper.getContractData()).stakedAt).toEqual(1600000000);
+            expect((await helper.getContractData()).option).toEqual(7);
             expect((await stakingMaster.getItemsStakedByUser(users[0].address))[0]).toEqualAddress(item.address);
         }
 
@@ -232,9 +232,9 @@ describe('Staking', () => {
                 to: users[0].address,
                 value: toNano('0.1'),
             });
-            expect(await helper.getStaker()).toEqualAddress(users[1].address);
-            expect(await helper.getStakedAt()).toEqual(1600000000);
-            expect(await helper.getOption()).toEqual(30);
+            expect((await helper.getContractData()).staker).toEqualAddress(users[1].address);
+            expect((await helper.getContractData()).stakedAt).toEqual(1600000000);
+            expect((await helper.getContractData()).option).toEqual(30);
             expect((await stakingMaster.getItemsStakedByUser(users[1].address))[0]).toEqualAddress(item.address);
         }
     });
@@ -314,8 +314,8 @@ describe('Staking', () => {
                 toNano('0.15')
             );
             const helper = blockchain.openContract(await stakingMaster.getHelper(item.address));
-            expect(await helper.getStakedAt()).toEqual(1600000000);
-            expect(await helper.getOption()).toEqual(7);
+            expect((await helper.getContractData()).stakedAt).toEqual(1600000000);
+            expect((await helper.getContractData()).option).toEqual(7);
             expect((await stakingMaster.getItemsStakedByUser(users[0].address))[0]).toEqualAddress(item.address);
 
             blockchain.now = 1600000000 + 86400 * 7;
@@ -346,8 +346,8 @@ describe('Staking', () => {
                 toNano('0.15')
             );
             const helper = blockchain.openContract(await stakingMaster.getHelper(item.address));
-            expect(await helper.getStakedAt()).toEqual(1600000000 + 86400 * 7);
-            expect(await helper.getOption()).toEqual(14);
+            expect((await helper.getContractData()).stakedAt).toEqual(1600000000 + 86400 * 7);
+            expect((await helper.getContractData()).option).toEqual(14);
             expect((await stakingMaster.getItemsStakedByUser(users[0].address))[0]).toEqualAddress(item.address);
 
             blockchain.now = 1600000000 + 86400 * (7 + 14);
@@ -366,7 +366,7 @@ describe('Staking', () => {
                     .getJettonBalance()
             ).toEqual(toNano('21'));
 
-            expect(await helper.getStakedAt()).toEqual(0);
+            expect((await helper.getContractData()).stakedAt).toEqual(0);
             expect((await stakingMaster.getStakedItems()).keys()).toHaveLength(0);
         }
 
@@ -380,8 +380,8 @@ describe('Staking', () => {
                 toNano('0.15')
             );
             const helper = blockchain.openContract(await stakingMaster.getHelper(item.address));
-            expect(await helper.getStakedAt()).toEqual(1600000000 + 86400 * (7 + 14));
-            expect(await helper.getOption()).toEqual(7);
+            expect((await helper.getContractData()).stakedAt).toEqual(1600000000 + 86400 * (7 + 14));
+            expect((await helper.getContractData()).option).toEqual(7);
             expect((await stakingMaster.getItemsStakedByUser(users[0].address))[0]).toEqualAddress(item.address);
 
             blockchain.now = 1600000000 + 86400 * (7 + 14 + 7);
@@ -400,7 +400,7 @@ describe('Staking', () => {
                     .getJettonBalance()
             ).toEqual(toNano('35'));
 
-            expect(await helper.getStakedAt()).toEqual(0);
+            expect(await (await helper.getContractData()).stakedAt).toEqual(0);
             expect((await stakingMaster.getStakedItems()).keys()).toHaveLength(0);
         }
     });
@@ -415,8 +415,8 @@ describe('Staking', () => {
             toNano('0.15')
         );
         const helper = blockchain.openContract(await stakingMaster.getHelper(item.address));
-        expect(await helper.getStakedAt()).toEqual(1600000000);
-        expect(await helper.getOption()).toEqual(7);
+        expect((await helper.getContractData()).stakedAt).toEqual(1600000000);
+        expect((await helper.getContractData()).option).toEqual(7);
         expect((await stakingMaster.getItemsStakedByUser(users[0].address))[0]).toEqualAddress(item.address);
 
         blockchain.now = 1600000000 + 86400 * 7;
@@ -462,8 +462,8 @@ describe('Staking', () => {
             toNano('0.15')
         );
         const helper = blockchain.openContract(await stakingMaster.getHelper(item.address));
-        expect(await helper.getStakedAt()).toEqual(1600000000);
-        expect(await helper.getOption()).toEqual(7);
+        expect((await helper.getContractData()).stakedAt).toEqual(1600000000);
+        expect((await helper.getContractData()).option).toEqual(7);
         expect((await stakingMaster.getItemsStakedByUser(users[0].address))[0]).toEqualAddress(item.address);
 
         blockchain.now = 1600000000 + 86400 * 7 - 1;
@@ -507,8 +507,8 @@ describe('Staking', () => {
             toNano('0.15')
         );
         const helper = blockchain.openContract(await stakingMaster.getHelper(item.address));
-        expect(await helper.getStakedAt()).toEqual(1600000000);
-        expect(await helper.getOption()).toEqual(7);
+        expect((await helper.getContractData()).stakedAt).toEqual(1600000000);
+        expect((await helper.getContractData()).option).toEqual(7);
         expect((await stakingMaster.getItemsStakedByUser(users[0].address))[0]).toEqualAddress(item.address);
 
         blockchain.now = 1600000000 + 86400 * 7;
@@ -552,8 +552,8 @@ describe('Staking', () => {
             toNano('0.15')
         );
         const helper = blockchain.openContract(await stakingMaster.getHelper(item.address));
-        expect(await helper.getStakedAt()).toEqual(1600000000);
-        expect(await helper.getOption()).toEqual(7);
+        expect((await helper.getContractData()).stakedAt).toEqual(1600000000);
+        expect((await helper.getContractData()).option).toEqual(7);
         expect((await stakingMaster.getItemsStakedByUser(users[0].address))[0]).toEqualAddress(item.address);
 
         blockchain.now = 1600000000 + 86400 * 7;
@@ -635,8 +635,8 @@ describe('Staking', () => {
             toNano('0.15')
         );
         const helper = blockchain.openContract(await stakingMaster.getHelper(item.address));
-        expect(await helper.getStakedAt()).toEqual(1600000000);
-        expect(await helper.getOption()).toEqual(30);
+        expect((await helper.getContractData()).stakedAt).toEqual(1600000000);
+        expect((await helper.getContractData()).option).toEqual(30);
         expect((await stakingMaster.getItemsStakedByUser(users[0].address))[0]).toEqualAddress(item.address);
 
         blockchain.now = 1600000000 + 86400 * 30 - 1;
