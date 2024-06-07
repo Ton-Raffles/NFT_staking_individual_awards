@@ -1,4 +1,4 @@
-# nftstakingmonaki
+# NFT_staking_individual_awards
 
 ## Project structure
 
